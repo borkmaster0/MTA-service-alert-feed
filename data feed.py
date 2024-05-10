@@ -136,8 +136,3 @@ class MTA():
 		except:
 			raise Exception("Value is not an alert.")
 
-## Testing area
-a = MTA()
-
-
-print(a.pretty_alert(a.all_planned_work_for_line('F')[0]))
