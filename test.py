@@ -1,4 +1,4 @@
-a = MTA()
+a = MTA
 
 print(a.pretty_alert(a.all_planned_work_for_line('F')[0]))
 
