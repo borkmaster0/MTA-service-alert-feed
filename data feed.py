@@ -512,4 +512,6 @@ class MTA:
             return True if len(all_equipment) != 0 else False
             
 if __name__ == "__main__":
-    pass
+    a = MTA.Subway
+    for item in a.alerts():
+        a.pretty_alert(item)
