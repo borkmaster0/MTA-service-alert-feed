@@ -299,7 +299,7 @@ class MTA:
             if equipment_type != "ES" and equipment_type != "EL" and equipment_type != None:
                 raise ValueError("Invalid equipment type. Can only be 'ES' or 'EL' or None.")
             
-            data = MTA.Elevators.fetch_data()
+            data = MTA.Equipment.fetch_data()
             items = []
             
             for item in data:
@@ -328,7 +328,7 @@ class MTA:
                 eq_id = kwargs.get('id', None)
                 eq_type = kwargs.get('type', None)
                 r = kwargs.get('reason', None)
-                data = MTA.Elevators.outage(station_name=station_name, id=eq_id, type=eq_type, reason=r)
+                data = MTA.Equipment.outage(station_name=station_name, id=eq_id, type=eq_type, reason=r)
                 
                 items = []
                 for item in data:
@@ -360,7 +360,7 @@ class MTA:
                 eq_id = kwargs.get('id', None)
                 eq_type = kwargs.get('type', None)
                 r = kwargs.get('reason', None)
-                data = MTA.Elevators.outage(station_name=station_name, id=eq_id, type=eq_type, reason=r)
+                data = MTA.Equipment.outage(station_name=station_name, id=eq_id, type=eq_type, reason=r)
                 
                 items = []
                 for item in data:
@@ -379,7 +379,7 @@ class MTA:
             """Gets all equipment information. User needs to parse through this data.
 
             Returns:
-                list[dict]: A list of all dictionaries of all equipment.
+                list[dict]: A list containing dictionaries of all equipment.
             
             Dictionary keys:
                 station: Station name\n
@@ -409,5 +409,58 @@ class MTA:
             jsonified_data = json.loads(response)
             return jsonified_data
 
+        @staticmethod
+        def is_accessible(station: str, type: str, **kwargs) -> bool:
+            """Gets whether or not a station is accessible.
+
+            Args:
+                station (str): Station name e.g. 'Grand Central-42 St'
+                type (str): Escalator (ES) or elevator (EL)
+            
+            Optional:
+                available (bool): Get all available equipment
+                unavalable (bool): Get all unavailable equipment
+
+            Returns:
+                bool: If station is accessible
+                
+            """
+            get_available = kwargs.get("available", False)
+            get_unavailable = kwargs.get("unavailable", False)
+            
+            outages = []
+            all_equipment = []
+            temp = []
+            
+            ## Parse through and only get the equipment at the station
+            for item in MTA.Equipment.all_equipment_info():
+                if item['station'] == station:
+                    all_equipment.append(item['equipmentno'])
+            
+            ## Get all equipment IDs for out equipment
+            for item in MTA.Equipment.outage(station, type=type):
+                outages.append(item['equipment'])
+            
+            ## Remove the equipment IDs that are out
+            for item in outages:
+                all_equipment.pop(all_equipment.index(item))
+            
+            ## Return the equipment data if args provided
+            if get_available:
+                for item in MTA.Equipment.all_equipment_info():
+                    for i in range(len(all_equipment)):
+                        if item['equipmentno'] == all_equipment[i]:
+                            temp.append(item)
+                return temp
+            elif get_unavailable:
+                for item in MTA.Equipment.all_equipment_info():
+                    for i in range(len(outages)):
+                        if item['equipmentno'] == outages[i]:
+                            temp.append(item)
+                return temp
+            
+            ## return Boolean
+            return True if len(all_equipment) != 0 else False
+            
 if __name__ == "__main__":
-    print(MTA.Bus.planned_work()[0])
+    print(MTA.Equipment.is_accessible('74 St-Broadway', 'ES', unavailable=True))
