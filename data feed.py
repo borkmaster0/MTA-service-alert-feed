@@ -4,17 +4,24 @@ import time
 
 # Initialize MTA class
 class MTA:
+	
+    class MTAError(Exception):
+        pass
+	
     class Subway: # Subway class
-        
+    
         @staticmethod
         def fetch_data() -> list[dict]:
             '''
             Fetch and repackage data.
             '''
             # Get the data
-            response = urllib.request.urlopen(
+            try:
+                response = urllib.request.urlopen(
             r"https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Fsubway-alerts.json"
             ).read()
+            except:
+            	raise MTA.MTAError("Failed to retrieve subway data.")
             
             # Parse raw JSON into a dictionary
             jsonified_data = json.loads(response)['entity']
@@ -137,7 +144,7 @@ class MTA:
                 if alert['time_in_effect'] != 'none':
                     print(alert['time_in_effect'])
             except:
-                raise Exception("Value is not an alert.")
+                raise MTA.MTAError("Value is not an alert.")
 
     class Bus: # Bus class
         
@@ -146,9 +153,12 @@ class MTA:
             """
             Fetch and repackage data
             """
-            response = urllib.request.urlopen(
+            try:
+                response = urllib.request.urlopen(
             r"https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Fbus-alerts.json"
             ).read()
+            except:
+            	raise MTA.MTAError("Failed to retrieve bus data.")
             
             # Parse raw JSON into a dictionary
             jsonified_data = json.loads(response)['entity']
@@ -193,7 +203,7 @@ class MTA:
             return data
 
         @staticmethod
-        def get_alert_at_index(index: int) -> list:
+        def get_alert_at_index(index: int=0) -> list:
             """
             Get an alert at a index.
             """
@@ -268,9 +278,12 @@ class MTA:
             Returns:
                 list[dict]: List containing dictionaries of the equipment information.
             """
-            response = urllib.request.urlopen(
+            try:
+            	response = urllib.request.urlopen(
             r"https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene.json"
             ).read()
+            except:
+            	raise MTA.MTAError("Failed to retrieve equipment data.")
             
             # Parse raw JSON into a dictionary
             jsonified_data = json.loads(response)
@@ -375,8 +388,16 @@ class MTA:
                         items.append[item]
                 return items
 
-        def all_equipment_info() -> list[dict]:
-            """Gets all equipment information. User needs to parse through this data.
+        def all_equipment_info(**kwargs) -> list[dict]:
+            """Gets all equipment information. User needs to parse through this data if optional filter args are not filled.
+            
+            Optional Filter Args:
+                station: str = Station Name
+                line: str = Train Line
+                bus_connections: str = Bus Line
+                active: bool = If the equipment is active
+                private: bool = If the equipment is privately maintained
+                equipment_type: str = The type of equipment (ES) or (EL)
 
             Returns:
                 list[dict]: A list containing dictionaries of all equipment.
@@ -402,11 +423,39 @@ class MTA:
                 busconnections: All bus connections\n
                 alternativeroute: Alternatives if equipment is down.
             """
-            response = urllib.request.urlopen(
+            
+            station = kwargs.get("station", None)
+            line = kwargs.get("line", None)
+            bus_connections = kwargs.get("bus", None)
+            active = kwargs.get("active", None)
+            
+            try:
+                response = urllib.request.urlopen(
                 r"https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene_equipments.json"
                 ).read()
+            except:
+            	raise MTA.MTAError("Failed to retrieve equipment information")
             
             jsonified_data = json.loads(response)
+            
+            for item in jsonified_data:
+                item['trainno'] = item['trainno'].split('/')
+                item['busconnections'] = item['busconnections'].split(',')
+                item['linesservedbyelevator'] = item['linesservedbyelevator'].split('/')
+            
+            ## Filters
+            if station != None:
+            	jsonified_data = [item for item in jsonified_data if item['station'] == station]
+            
+            elif line != None:
+            	jsonified_data = [item for item in jsonified_data if line in ['trainno']]
+            
+            elif bus_connections != None:
+                jsonified_data = [item for item in jsonified_data if bus_connections in item['busconnections']]
+            
+            elif active != None: 
+            	jsonified_data = [item for item in jsonified_data if ("Y" if active else "N") == ("Y" if active else "N")]
+            
             return jsonified_data
 
         @staticmethod
@@ -463,4 +512,4 @@ class MTA:
             return True if len(all_equipment) != 0 else False
             
 if __name__ == "__main__":
-    print(MTA.Equipment.is_accessible('74 St-Broadway', 'ES', unavailable=True))
+    pass
