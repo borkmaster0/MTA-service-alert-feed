@@ -355,7 +355,7 @@ class MTA:
                         items.append(item)
                 return items
             else:
-                data = MTA.Elevators.fetch_data()
+                data = MTA.Equipment.fetch_data()
                 items = []
                 for item in data:
                     if item['isupcomingoutage'] == "Y":
@@ -387,7 +387,7 @@ class MTA:
                         items.append[item]
                 return items
             else:
-                data = MTA.Elevators.fetch_data()
+                data = MTA.Equipment.fetch_data()
                 items = []
                 for item in data:
                     if item['ismaintenanceoutage'] == "Y":
@@ -518,6 +518,5 @@ class MTA:
             return True if len(all_equipment) != 0 else False
             
 if __name__ == "__main__":
-    a = MTA.Subway
-    for item in a.alerts():
-        a.pretty_alert(item)
+    a = MTA.Equipment
+    print(a.upcoming())
