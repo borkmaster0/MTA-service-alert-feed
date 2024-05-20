@@ -4,10 +4,10 @@ import time
 
 # Initialize MTA class
 class MTA:
-	
+    
     class MTAError(Exception):
         pass
-	
+    
     class Subway: # Subway class
     
         @staticmethod
@@ -21,7 +21,7 @@ class MTA:
             r"https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Fsubway-alerts.json"
             ).read()
             except:
-            	raise MTA.MTAError("Failed to retrieve subway data.")
+                raise MTA.MTAError("Failed to retrieve subway data.")
             
             # Parse raw JSON into a dictionary
             jsonified_data = json.loads(response)['entity']
@@ -60,12 +60,12 @@ class MTA:
                     alert_time_in_effect = 'none'
                 
                 data.append({'index': selected_alert_index, 
-			     'alert_type': alert_type, 
-			     'affected_routes': affected_routes, 
-			     'header_text': header_text, 
-			     'description_text': description_text, 
-			     'detailed_alert_type': alert_type_detailed, 
-			     'time_in_effect': alert_time_in_effect})
+                 'alert_type': alert_type, 
+                 'affected_routes': affected_routes, 
+                 'header_text': header_text, 
+                 'description_text': description_text, 
+                 'detailed_alert_type': alert_type_detailed, 
+                 'time_in_effect': alert_time_in_effect})
             return data
 
         @staticmethod
@@ -164,7 +164,7 @@ class MTA:
             r"https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Fbus-alerts.json"
             ).read()
             except:
-            	raise MTA.MTAError("Failed to retrieve bus data.")
+                raise MTA.MTAError("Failed to retrieve bus data.")
             
             # Parse raw JSON into a dictionary
             jsonified_data = json.loads(response)['entity']
@@ -285,11 +285,11 @@ class MTA:
                 list[dict]: List containing dictionaries of the equipment information.
             """
             try:
-            	response = urllib.request.urlopen(
+                response = urllib.request.urlopen(
             r"https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene.json"
             ).read()
             except:
-            	raise MTA.MTAError("Failed to retrieve equipment data.")
+                raise MTA.MTAError("Failed to retrieve equipment data.")
             
             # Parse raw JSON into a dictionary
             jsonified_data = json.loads(response)
@@ -440,7 +440,7 @@ class MTA:
                 r"https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fnyct_ene_equipments.json"
                 ).read()
             except:
-            	raise MTA.MTAError("Failed to retrieve equipment information")
+                raise MTA.MTAError("Failed to retrieve equipment information")
             
             jsonified_data = json.loads(response)
             
@@ -451,16 +451,16 @@ class MTA:
             
             ## Filters
             if station != None:
-            	jsonified_data = [item for item in jsonified_data if item['station'] == station]
+                jsonified_data = [item for item in jsonified_data if item['station'] == station]
             
             elif line != None:
-            	jsonified_data = [item for item in jsonified_data if line in ['trainno']]
+                jsonified_data = [item for item in jsonified_data if line in ['trainno']]
             
             elif bus_connections != None:
                 jsonified_data = [item for item in jsonified_data if bus_connections in item['busconnections']]
             
             elif active != None: 
-            	jsonified_data = [item for item in jsonified_data if ("Y" if active else "N") == ("Y" if active else "N")]
+                jsonified_data = [item for item in jsonified_data if ("Y" if active else "N") == ("Y" if active else "N")]
             
             return jsonified_data
 
