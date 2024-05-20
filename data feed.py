@@ -59,7 +59,13 @@ class MTA:
                 except:
                     alert_time_in_effect = 'none'
                 
-                data.append({'index': selected_alert_index, 'alert_type': alert_type, 'affected_routes': affected_routes, 'header_text': header_text, 'description_text': description_text, 'detailed_alert_type': alert_type_detailed, 'time_in_effect': alert_time_in_effect})
+                data.append({'index': selected_alert_index, 
+			     'alert_type': alert_type, 
+			     'affected_routes': affected_routes, 
+			     'header_text': header_text, 
+			     'description_text': description_text, 
+			     'detailed_alert_type': alert_type_detailed, 
+			     'time_in_effect': alert_time_in_effect})
             return data
 
         @staticmethod
